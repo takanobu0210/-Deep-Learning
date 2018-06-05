@@ -47,18 +47,16 @@ x, t = get_data()
 # 重みとバイアス設定
 network = init_network()
 
+batch_size = 100 # バッチの数
 accuracy_cnt = 0 # 正解の精度
 
-# xに格納された画像データを1枚ずつ取り出して処理
-for i in range(len(x)):
-    y = predict(network, x[i])
-    # 引数の配列の中で、一番スカラの大きいインデックスを取得
-    # (一番確率の高い要素のインデックスを取得)
-    p = np.argmax(y)
-
-    # 予測値と正解ラベルを比較
-    if p == t[i]:
-        accuracy_cnt += 1
+# xに格納された画像データをbatch_sizeずつ取り出して処理
+for i in range(0, len(x), batch_size):
+    # [0:100], [100:200], [200:300] ....
+    x_batch = x[i:i+batch_size]
+    y_batch = predict(network, x_batch)
+    p = np.argmax(y_batch, axis=1) # axis=1 は1次元目の要素毎に最大値のインデックスを見つける
+    accuracy_cnt += np.sum(p == t[i:i+batch_size])
 
 # 正答率の出力
 print("Accuracy: " + str(float(accuracy_cnt) / len(x))) # Accuracy: 0.9352
